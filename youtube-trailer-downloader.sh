@@ -7,7 +7,7 @@
 # This script is supported by the tools youtube-dl, ffmpeg and jq. All of them need to be installed before usage of this script.
 
 #Search this paths
-PATHS=( "/mnt/pool/movies/deutsch/" )
+PATHS=( "/path/to/movies1" "/path/to/movies2" )
 
 #Your TheMovieDB API
 API=<your API string here>
