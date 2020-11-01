@@ -80,7 +80,8 @@ do
 
 	find "$i" -mindepth 1 -maxdepth 2 -name '*.nfo*' -printf "%h\n" | sort -u | while read DIR
         do
-	        FILENAME=$(ls "$DIR" | egrep '\.nfo$' | awk 'NR==1' | sed s/".nfo"//g)
+	        #FILENAME=$(ls "$DIR" | egrep '\.nfo$' | awk 'NR==1' | sed s/".nfo"//g)
+                FILENAME=$(ls -1 "$DIR" | gawk 'match($0,/^(.*)\.nfo$/,a) {print a[1]; exit}')
                 
                 if [ -f "$DIR"/movie.nfo ]
                 then
@@ -90,6 +91,7 @@ do
                 fi
 
                 if ! [ -f "$DIR/$OUTFILENAME-trailer.mp4" ] || [ $OVERWRITE = "true" ]; then
+		#if ! [ -f "$DIR"/*trailer* ] || [ $OVERWRITE = "true" ]; #errors out if more than one file with name containing trailer
 
                         #Get TheMovieDB ID from NFO
                         TMDBID=$(awk -F "[><]" '/tmdbid/{print $3}' "$DIR/$FILENAME.nfo" | awk -F'[ ]' '{print $1}')
