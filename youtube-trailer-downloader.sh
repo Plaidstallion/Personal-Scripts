@@ -4,6 +4,8 @@
 #            Config             #
 #################################
 
+# This script is supported by the tools youtube-dl, ffmpeg and jq. All of them need to be installed before usage of this script.
+
 #Search this paths
 PATHS=( "/mnt/pool/movies/deutsch/" )
 
@@ -25,6 +27,7 @@ OVERWRITE=false
 
 #Functions
 downloadTrailer(){
+####Using the Youtbe-dl-server in a container works but the script stops after the first actions is complete.
 #        DL=$(docker run --name youtube-dl-temp -i --rm -v /your/volume/mount1:/your/volume/mount1 -v /your/volume/mount2:/your/volume/mount2  --user 1000:1000 kmb32123/youtube-dl-server \
 #             youtube-dl -f "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best" "https://www.youtube.com/watch?v=$ID" -o "$DIR/$OUTFILENAME-trailer.%(ext)s" --restrict-filenames --no-continue)
         DL=$(/usr/bin/python3 /usr/local/bin/youtube-dl -f "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best"  "https://www.youtube.com/watch?v=$ID" \
