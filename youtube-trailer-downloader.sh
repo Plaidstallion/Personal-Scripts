@@ -90,8 +90,8 @@ do
                         OUTFILENAME=$(awk -F "[><]" '/<title>/{print $3}' "$DIR/$FILENAME.nfo" | sed s/"\/"/+/g)
                 fi
 
-                if ! [ -f "$DIR/$OUTFILENAME-trailer.mp4" ] || [ $OVERWRITE = "true" ]; then
-		#if ! [ -f "$DIR"/*trailer* ] || [ $OVERWRITE = "true" ]; #errors out if more than one file with name containing trailer
+                #if ! [ -f "$DIR/$OUTFILENAME-trailer.mp4" ] || [ $OVERWRITE = "true" ]; then #works but attempts download if trailer file is anything but $OUTFILENAME-trailer.mp4
+		if ! [ -f "$DIR"/*trailer* ] || [ $OVERWRITE = "true" ]; #errors out if more than one file with name containing trailer
 
                         #Get TheMovieDB ID from NFO
                         TMDBID=$(awk -F "[><]" '/tmdbid/{print $3}' "$DIR/$FILENAME.nfo" | awk -F'[ ]' '{print $1}')
