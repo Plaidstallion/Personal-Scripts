@@ -1,0 +1,82 @@
+#!/bin/bash
+
+API_TOKEN="<your_api_token>"
+NEAR_THRESH="1000"
+NEAR_CUE="1" #Set to string value to true
+
+process_subtitles() {
+    BASE_FILE=$1
+    MERGE_FILE=$2
+    MERGE_COLOR=$3
+    OUTPUT_FILE=$4
+    DIR=$5
+
+    echo "Processing in directory: $DIR"
+    echo "Base File: $BASE_FILE"
+    echo "Merge File: $MERGE_FILE"
+    echo "Merge Color: $MERGE_COLOR"
+    echo "Output File: $OUTPUT_FILE"
+
+    # Send the POST request to convert the subtitle
+    RESPONSE=$(curl -s -X POST "https://subtitletools.com/api/v1/merge-subtitles/nearest-cue" \
+        -H "Accept: application/json" \
+        -H "Authorization: Bearer $API_TOKEN" \
+        -F "subtitle=@$DIR/$BASE_FILE" \
+        -F "second-subtitle=@$DIR/$MERGE_FILE" \
+        -F "nearestCueThreshold=$NEAR_THRESH" \
+        -F "nearestCueTopBottom=$NEAR_CUE" \
+        -F "baseSubtitleColor=" \
+        -F "mergeSubtitleColor=$MERGE_COLOR")
+
+    echo "POST request sent. Response received."
+    echo "Raw Response: $RESPONSE"
+
+    # Extract the JSON response
+    ERRORS=$(echo "$RESPONSE" | jq -r '.errors')
+    DOWNLOAD_URL=$(echo "$RESPONSE" | jq -r '.download_url')
+
+    echo "Errors: $ERRORS"
+    echo "Download URL: $DOWNLOAD_URL"
+
+    # Check for errors
+    if [[ "$ERRORS" != "null" ]]; then
+        echo "Error: $ERRORS" >&2
+        exit 1
+    fi
+
+    # Check if download URL exists
+    if [[ -z "$DOWNLOAD_URL" ]]; then
+        echo "Error: Download URL not found." >&2
+        exit 1
+    fi
+
+    echo "Download URL found. Proceeding to download the converted subtitle file."
+
+    # Download the converted subtitle file
+    curl -s -H "Authorization: Bearer $API_TOKEN" -o "$DIR/$OUTPUT_FILE" "$DOWNLOAD_URL"
+
+    echo "Subtitle merged and saved to $DIR/$OUTPUT_FILE"
+}
+
+export -f process_subtitles
+export API_TOKEN
+export NEAR_THRESH
+export NEAR_CUE
+
+# Prompt for folders to search in
+read -p "Enter the folders to search in (can use wildcards, e.g., folder*, multiple folders with a space and search all with *): " folder_pattern
+
+# Iterate through each specified folder
+find $folder_pattern -type d -print0 | while IFS= read -r -d '' DIR; do
+    # Check if both de-forced.srt and en-full.srt exist in the directory
+    if [[ -f "$DIR/de-forced.srt" && -f "$DIR/en-full.srt" ]]; then
+        process_subtitles "en-full_2.srt" "de-forced_2.srt" "#FD5778" "en-full-de-forced.srt" "$DIR" #Full eng subs on bottom with no color applied and deu subtitles on top with red sub color.
+    fi
+
+    # Check if both en-forced.srt and de-full.srt exist in the directory
+    if [[ -f "$DIR/en-forced.srt" && -f "$DIR/de-full.srt" ]]; then
+        process_subtitles "de-full_2.srt" "en-forced_2.srt" "#5555FF" "de-full-en-forced.srt" "$DIR" #Full deu subs on bottom with no color applied and eng subtitles on top with blue sub color.
+    fi
+done
+
+echo "Completed processing all directories."
