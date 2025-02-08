@@ -2,7 +2,7 @@
 
 API_TOKEN="<your_api_token>"
 NEAR_THRESH="1000"
-NEAR_CUE="1" #Set value to true
+NEAR_CUE="1" #Set value to true. Use 0 for false.
 
 process_subtitles() {
     BASE_FILE=$1
